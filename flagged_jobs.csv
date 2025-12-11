@@ -1,0 +1,6 @@
+timestamp,reason,predicted,snippet,comments
+2025-11-21T20:23:17.829829,Incorrect Prediction,Likely Real Job,looking for a pro data analyst,wrong prediction
+2025-11-21T20:31:04.627198,Incorrect Prediction,Likely Real Job,"""Personal Assistant needed for a VIP businessman. ",wrong prediction
+2025-12-05T17:59:16.595502,Incorrect Prediction,Potential Fake Job!," ""WORK FROM HOME $5,000 WEEKLY! Immediate hiring. ",wrong
+2025-12-05T17:59:48.383309,Incorrect Prediction,Potential Fake Job!," ""WORK FROM HOME $5,000 WEEKLY! Immediate hiring. ",wrong
+2025-12-08T19:35:16.664110,Scam Content,Potential Fake Job!,"""WORK FROM HOME $5,000 WEEKLY! Immediate hiring. N",wrong
