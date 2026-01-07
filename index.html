@@ -3,295 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Fake Job Detector</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>SECUREGUARD | AI Fraud Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
     <style>
-        /* --- GLOBAL STYLES --- */
+        :root {
+            --primary-neon: #64ffda;
+            --safe-green: #2ecc71;
+            --danger-red: #ff4757;
+            --bg-dark: #0a192f;
+            --card-bg: rgba(16, 33, 65, 0.8);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg-dark);
+            background-image: radial-gradient(circle at 20% 30%, rgba(100, 255, 218, 0.05) 0%, transparent 40%);
             min-height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            color: #333;
+            color: #ccd6f6;
+            overflow-y: auto;
         }
 
-        /* --- MAIN CARD CONTAINER --- */
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 300px; background: rgba(2, 12, 27, 0.95);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px; display: flex; flex-direction: column;
+            height: 100vh; position: sticky; top: 0;
+        }
+
+        .sidebar h3 { font-family: 'Orbitron', sans-serif; font-size: 0.8rem; color: var(--primary-neon); letter-spacing: 2px; margin-bottom: 20px; }
+
+        .history-item {
+            background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px;
+            margin-bottom: 12px; font-size: 0.75rem; border-left: 4px solid #444;
+        }
+        .history-item.item-fake { border-left-color: var(--danger-red); }
+        .history-item.item-real { border-left-color: var(--safe-green); }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 50px 20px; }
+
         .container {
-            background: rgba(255, 255, 255, 0.95);
-            width: 100%;
-            max-width: 700px;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
+            background: var(--card-bg); backdrop-filter: blur(20px);
+            width: 100%; max-width: 800px; border-radius: 25px;
+            padding: 40px; border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
         }
 
-        .container:hover {
-            transform: translateY(-5px);
-        }
+        header h1 { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; color: #fff; text-align: center; }
 
-        /* --- HEADER --- */
-        header { text-align: center; margin-bottom: 30px; }
-        h1 { font-size: 2.5rem; background: -webkit-linear-gradient(#667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; }
-        p.subtitle { color: #666; font-size: 1rem; margin-top: 5px; }
-
-        /* --- FORM ELEMENTS --- */
-        .form-group { margin-bottom: 20px; position: relative; }
-        
-        label { font-weight: 600; color: #444; margin-bottom: 8px; display: block; }
-        
         textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s;
-            background: #f9f9f9;
-            resize: vertical;
+            width: 100%; background: #020c1b; border: 1px solid #233554; border-radius: 15px;
+            padding: 20px; color: #fff; font-size: 1rem; margin: 25px 0; min-height: 180px;
         }
 
-        textarea:focus {
-            border-color: #764ba2;
-            background: #fff;
-            outline: none;
-            box-shadow: 0 0 15px rgba(118, 75, 162, 0.1);
+        .btn-scan {
+            width: 100%; padding: 18px; background: transparent; border: 2px solid var(--primary-neon);
+            color: var(--primary-neon); font-family: 'Orbitron', sans-serif; border-radius: 12px;
+            cursor: pointer; transition: 0.3s; font-weight: bold; letter-spacing: 2px;
+        }
+        .btn-scan:hover { background: rgba(100, 255, 218, 0.1); }
+
+        /* --- RESULT SECTION --- */
+        .result-box { display: none; margin-top: 35px; padding: 30px; border-radius: 20px; text-align: center; }
+        .risk-meter-container { margin: 25px 0; text-align: left; }
+        .risk-meter { height: 14px; width: 100%; background: #112240; border-radius: 7px; overflow: hidden; }
+        .risk-fill { height: 100%; width: 0%; transition: 1.5s cubic-bezier(0.1, 0.5, 0.1, 1); }
+        .res-fake { border: 1px solid var(--danger-red); background: rgba(255, 71, 87, 0.05); color: var(--danger-red); }
+        .res-real { border: 1px solid var(--safe-green); background: rgba(46, 204, 113, 0.05); color: var(--safe-green); }
+
+        /* --- FEEDBACK MODAL --- */
+        #feedbackModal {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: #102141; padding: 35px; border-radius: 20px; width: 90%; max-width: 450px;
+            border: 1px solid var(--primary-neon); box-shadow: 0 0 30px rgba(100,255,218,0.2);
         }
 
-        /* --- BUTTONS --- */
-        .btn-primary {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(to right, #667eea, #764ba2);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-primary:hover {
-            transform: scale(1.02);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
-        }
-
-        .btn-primary:active { transform: scale(0.98); }
-
-        /* --- LOADING ANIMATION --- */
-        #loading {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-        .spinner {
-            width: 40px; height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #764ba2;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* --- RESULT BOX --- */
-        .result-box {
-            display: none; /* Hidden by default */
-            margin-top: 30px;
-            padding: 25px;
-            border-radius: 15px;
-            text-align: center;
-            animation: slideUp 0.5s ease-out;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .result-content h2 { font-size: 2rem; margin-bottom: 10px; }
-        .confidence { font-size: 1.1rem; opacity: 0.9; margin-bottom: 20px; }
-
-        /* Color Coding */
-        .result-box.Real {
-            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
-            color: #155724;
-            box-shadow: 0 10px 30px rgba(150, 230, 161, 0.4);
-        }
-        
-        .result-box.Fake {
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
-            color: #721c24;
-            box-shadow: 0 10px 30px rgba(255, 154, 158, 0.4);
-        }
-
-        /* --- FEEDBACK SECTION --- */
-        .feedback-btn {
-            background: rgba(0,0,0,0.1);
-            color: inherit;
-            border: 1px solid rgba(0,0,0,0.1);
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-        .feedback-btn:hover { background: rgba(0,0,0,0.2); }
-
-        .feedback-form {
-            display: none;
-            margin-top: 20px;
-            text-align: left;
-            background: rgba(255,255,255,0.5);
-            padding: 20px;
-            border-radius: 10px;
-        }
-        
-        select, input[type="text"] {
-            width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px;
-            border: 1px solid #ccc; border-radius: 8px;
-        }
-
-        /* --- FOOTER --- */
-        .footer { text-align: center; margin-top: 30px; font-size: 0.8rem; color: #888; }
-
+        .spinner { width: 40px; height: 40px; border: 3px solid rgba(100,255,218,0.1); border-top-color: var(--primary-neon); border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>AI Job Detective</h1>
-            <p class="subtitle">Paste a job description below to check if it's Real or Fake.</p>
-        </header>
+    <aside class="sidebar">
+        <h3>Threat Logs</h3>
+        <div id="scanHistory"><p style="color: #495670; font-size: 0.7rem;">Waiting for scan...</p></div>
+    </aside>
 
-        <div class="form-group">
-            <label for="desc">Job Description</label>
-            <textarea id="desc" rows="8" placeholder="e.g. 'We are looking for a Data Scientist...' (Paste text here)"></textarea>
-        </div>
+    <div class="main-content">
+        <div class="container" id="mainCard">
+            <header>
+                <h1>SECUREGUARD</h1>
+                <p style="color: #8892b0; font-size: 0.8rem; text-align: center;">AI Analysis Engine</p>
+            </header>
 
-        <button class="btn-primary" onclick="predict()">🔍 Analyze Job Post</button>
+            <textarea id="desc" placeholder="Paste the job description here..."></textarea>
+            
+            <button class="btn-scan" onclick="predict()">Initialize Analysis</button>
 
-        <div id="loading">
-            <div class="spinner"></div>
-            <p style="margin-top:10px; color:#666;">Scanning patterns...</p>
-        </div>
+            <div id="loading" style="display: none; text-align: center;">
+                <div class="spinner"></div>
+                <p style="font-size: 0.7rem; color: var(--primary-neon);">DECRYPTING PATTERNS...</p>
+            </div>
 
-        <div id="resultBox" class="result-box">
-            <div class="result-content">
-                <div style="font-size: 4rem; margin-bottom: 10px;" id="icon"></div>
-                <h2 id="resTitle"></h2>
-                <p class="confidence">AI Confidence Score: <strong><span id="resConf"></span>%</strong></p>
-                
-                <button class="feedback-btn" onclick="toggleFeedback()">🚩 Report Incorrect Prediction</button>
-                
-                <div id="feedbackForm" class="feedback-form">
-                    <label>Reason</label>
-                    <select id="reason">
-                        <option>Incorrect Prediction</option>
-                        <option>Scam Content</option>
-                        <option>Other</option>
-                    </select>
-                    <label>Comments</label>
-                    <input type="text" id="comments" placeholder="Tell us more...">
-                    <button class="btn-primary" style="background: #333; margin-top:10px;" onclick="submitFeedback()">Submit Report</button>
+            <div id="resultBox" class="result-box">
+                <h2 id="resTitle" style="font-family: 'Orbitron';"></h2>
+                <div class="risk-meter-container">
+                    <div class="risk-label"><span>Confidence Score</span><span id="resConf">0%</span></div>
+                    <div class="risk-meter"><div id="riskFill" class="risk-fill"></div></div>
                 </div>
+                <button class="btn-scan" style="margin-top: 10px; font-size: 0.7rem; border-color: #ff4757; color: #ff4757;" onclick="openFeedback()">🚩 Flag Anomaly (Human Feedback)</button>
             </div>
         </div>
+    </div>
 
-        <div class="footer">
-            Powered by Machine Learning & FastAPI
+    <div id="feedbackModal">
+        <div class="modal-content">
+            <h3 style="font-family:'Orbitron'; color:var(--primary-neon); margin-bottom:15px;">Corrective Input</h3>
+            <p style="font-size:0.8rem; margin-bottom:10px; color:#8892b0;">Tell us why you think this result is incorrect:</p>
+            
+            <select id="fbReason" style="width:100%; padding:12px; background:#020c1b; color:white; border:1px solid #233554; border-radius:8px; margin-bottom:10px;">
+                <option value="Incorrect Prediction">Incorrect Prediction</option>
+                <option value="Unrealistic Salary Structure">Unrealistic Salary Structure</option>
+                <option value="Suspicious Requirements">Suspicious Requirements</option>
+                <option value="Scam Language Patterns">Scam Language Patterns</option>
+                <option value="Other">Other Security Concern</option>
+            </select>
+
+            <textarea id="fbDetails" placeholder="Describe the anomaly here..." 
+                      style="min-height: 100px; margin: 10px 0; font-size: 0.85rem; padding: 12px;"></textarea>
+
+            <button class="btn-scan" onclick="submitFeedback()">LOG TO AUDIT TRAIL</button>
+            <button onclick="closeFeedback()" style="background:none; border:none; color:#8892b0; margin-top:15px; cursor:pointer; width:100%; font-size:0.8rem;">DISCARD REPORT</button>
         </div>
     </div>
 
     <script>
         async function predict() {
             const desc = document.getElementById('desc').value;
-            
-            // Basic validation
-            if (!desc || desc.length < 10) { 
-                alert("Please enter a longer job description (at least 10 characters)."); 
-                return; 
-            }
+            if (!desc || desc.length < 15) { alert("Please provide more text."); return; }
 
-            // UI State: Loading
             document.getElementById('loading').style.display = 'block';
             document.getElementById('resultBox').style.display = 'none';
-            document.getElementById('feedbackForm').style.display = 'none';
 
             try {
-                // Calling Backend API
-                const res = await fetch('http://127.0.0.1:8000/predict', {
+                const response = await fetch('http://127.0.0.1:8000/predict', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ description: desc })
                 });
                 
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.detail);
-
-                // Show Result
+                const data = await response.json();
+                document.getElementById('loading').style.display = 'none';
                 const box = document.getElementById('resultBox');
                 const title = document.getElementById('resTitle');
-                const icon = document.getElementById('icon');
+                const fill = document.getElementById('riskFill');
                 
                 box.style.display = 'block';
-                
-                // Dynamic Styling based on Result
+                document.getElementById('resConf').innerText = data.confidence_score + "%";
+
                 if (data.result === 'Fake') {
-                    box.className = 'result-box Fake';
-                    title.innerText = "Potential Fake Job!";
-                    icon.innerText = "⚠️";
+                    box.className = "result-box res-fake";
+                    title.innerText = "CRITICAL: FAKE DETECTED";
+                    fill.style.backgroundColor = "var(--danger-red)";
+                    addToHistory("Fake", data.confidence_score);
                 } else {
-                    box.className = 'result-box Real';
-                    title.innerText = "Likely Real Job";
-                    icon.innerText = "✅";
+                    box.className = "result-box res-real";
+                    title.innerText = "VERIFIED: REAL JOB";
+                    fill.style.backgroundColor = "var(--safe-green)";
+                    addToHistory("Real", data.confidence_score);
                 }
-                
-                document.getElementById('resConf').innerText = data.confidence_score;
 
-                // Smooth scroll to result
-                box.scrollIntoView({ behavior: 'smooth' });
-
+                setTimeout(() => { fill.style.width = data.confidence_score + "%"; }, 100);
             } catch (err) {
-                alert("Error connecting to server. Make sure main.py is running! \nDetails: " + err.message);
-            } finally {
+                alert("Backend Error! Is your FastAPI running?");
                 document.getElementById('loading').style.display = 'none';
             }
         }
 
-        function toggleFeedback() {
-            const form = document.getElementById('feedbackForm');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        function addToHistory(type, conf) {
+            const history = document.getElementById('scanHistory');
+            if(history.innerText.includes("Waiting")) history.innerHTML = "";
+            const div = document.createElement('div');
+            div.className = `history-item item-${type.toLowerCase()}`;
+            div.innerHTML = `<strong>${type.toUpperCase()}</strong> - ${conf}% <br><small>${new Date().toLocaleTimeString()}</small>`;
+            history.prepend(div);
+        }
+
+        function openFeedback() { document.getElementById('feedbackModal').style.display = 'flex'; }
+        function closeFeedback() { 
+            document.getElementById('feedbackModal').style.display = 'none'; 
+            document.getElementById('fbDetails').value = ""; // Clear on close
         }
 
         async function submitFeedback() {
             const desc = document.getElementById('desc').value;
-            const pred = document.getElementById('resTitle').innerText;
-            const reason = document.getElementById('reason').value;
-            const comments = document.getElementById('comments').value;
+            const category = document.getElementById('fbReason').value;
+            const details = document.getElementById('fbDetails').value;
+            
+            // Combining Category and Textbox details
+            const fullReason = category + (details ? " | " + details : "");
+            
+            const pred = document.getElementById('resTitle').innerText.includes("FAKE") ? "Fake" : "Real";
 
             try {
-                await fetch('http://127.0.0.1:8000/feedback', {
+                const res = await fetch('http://127.0.0.1:8000/feedback', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ description: desc, prediction: pred, reason: reason, comments: comments })
+                    body: JSON.stringify({
+                        description: desc,
+                        prediction: pred,
+                        reason: fullReason
+                    })
                 });
-                alert("Thank you! Your feedback helps improve the AI.");
-                document.getElementById('feedbackForm').style.display = 'none';
-            } catch (e) {
-                alert("Could not save feedback.");
-            }
+
+                if(res.ok) {
+                    alert("Anomaly logged in flagged_jobs.csv. Thank you, Agent.");
+                    closeFeedback();
+                }
+            } catch (e) { alert("Network Error: Could not save feedback."); }
         }
     </script>
-
 </body>
 </html>

@@ -2,57 +2,152 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SECUREGUARD | Admin Authentication</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <style>
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            background-color: #e9ecef; /* Grey Background */
-            margin: 0;
+        :root {
+            --primary-neon: #64ffda;
+            --bg-dark: #0a192f;
+            --card-bg: rgba(16, 33, 65, 0.9);
         }
-        .login-card { 
-            background: white; 
-            padding: 40px; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            width: 350px; 
-            text-align: center; 
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+        body {
+            background: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(100, 255, 218, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(100, 255, 218, 0.05) 0%, transparent 40%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ccd6f6;
+            overflow: hidden;
         }
-        h2 { margin-bottom: 20px; color: #333; }
-        input { 
-            width: 100%; 
-            padding: 12px; 
-            margin: 10px 0; 
-            border: 1px solid #ddd; 
-            border-radius: 5px; 
-            box-sizing: border-box; 
+
+        .login-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            width: 100%;
+            max-width: 420px;
+            padding: 50px;
+            border-radius: 25px;
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+            text-align: center;
+            position: relative;
         }
-        button { 
-            width: 100%; 
-            padding: 12px; 
-            background-color: #333; /* Black Button */
-            color: white; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-size: 16px; 
+
+        /* Top Accent Light */
+        .login-card::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 50%; transform: translateX(-50%);
+            width: 120px; height: 4px;
+            background: var(--primary-neon);
+            box-shadow: 0 0 20px var(--primary-neon);
+            border-radius: 0 0 10px 10px;
         }
-        button:hover { background-color: #555; }
-        .error { color: red; display: none; margin-top: 10px; }
+
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            letter-spacing: 4px;
+            margin-bottom: 35px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 0.7rem;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary-neon);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            background: #020c1b;
+            border: 1px solid #233554;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.95rem;
+            transition: 0.4s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-neon);
+            box-shadow: 0 0 15px rgba(100, 255, 218, 0.1);
+            background: #0a192f;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 18px;
+            background: transparent;
+            border: 1px solid var(--primary-neon);
+            color: var(--primary-neon);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: 0.4s;
+            margin-top: 15px;
+            letter-spacing: 3px;
+        }
+
+        .btn-login:hover {
+            background: rgba(100, 255, 218, 0.1);
+            box-shadow: 0 0 30px rgba(100, 255, 218, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .error-box {
+            color: #ff4757;
+            background: rgba(255, 71, 87, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin-top: 20px;
+            display: none;
+            border: 1px solid rgba(255, 71, 87, 0.2);
+        }
+
+        .deco-dots { font-size: 0.6rem; color: #495670; margin-top: 30px; letter-spacing: 5px; }
     </style>
 </head>
 <body>
 
     <div class="login-card">
-        <h2>🔐 Admin Panel Login</h2>
-        <input type="text" id="username" placeholder="Enter Username">
-        <input type="password" id="password" placeholder="Enter Password">
-        <button onclick="login()">Login</button>
-        <p id="errorMsg" class="error">Invalid Credentials!</p>
+        <h2>Authentication</h2>
+        
+        <div class="input-group">
+            <label>Admin Username</label>
+            <input type="text" id="username" placeholder="Type ID...">
+        </div>
+        
+        <div class="input-group">
+            <label>Security Key</label>
+            <input type="password" id="password" placeholder="Type Key...">
+        </div>
+        
+        <button class="btn-login" onclick="login()">ESTABLISH SESSION</button>
+        
+        <div id="errorMsg" class="error-box">ACCESS DENIED: Invalid Credentials</div>
+        
+        <div class="deco-dots">••••••••••••</div>
     </div>
 
     <script>
@@ -60,6 +155,11 @@
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
             const errorMsg = document.getElementById('errorMsg');
+
+            if(!user || !pass) {
+                alert("Please fill all security fields.");
+                return;
+            }
 
             const formData = new URLSearchParams();
             formData.append('username', user);
@@ -75,12 +175,13 @@
                 if (res.ok) {
                     const data = await res.json();
                     localStorage.setItem('access_token', data.access_token);
+                    alert("IDENTITY VERIFIED. Welcome Admin.");
                     window.location.href = 'admin.html'; 
                 } else {
                     errorMsg.style.display = 'block';
                 }
             } catch (err) {
-                alert("Server error! Make sure main.py is running.");
+                alert("CORE SYSTEM OFFLINE: Ensure main.py is active.");
             }
         }
     </script>
